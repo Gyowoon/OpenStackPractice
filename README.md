@@ -1,6 +1,7 @@
 # OpenStackPractice
 오픈스택 실습 강의 자료
 전북대학교 SW중심대학 
+
 ![image](https://github.com/user-attachments/assets/b9d5612e-2c05-4226-88cc-d2e9c1ba4f10)
 
 ## 1. 라이센스: CC BY-NC-SA
