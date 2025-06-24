@@ -1,6 +1,6 @@
 # OpenStackPractice
-오픈스택 실습 강의 자료
-전북대학교 SW중심대학 
+
+전북대학교 컴퓨터인공지능학부 박현찬 교수님께서 제공해주신 강의자료를 바탕으로 실습한 내용을 기록합니다. 
 
 ![image](https://github.com/user-attachments/assets/b9d5612e-2c05-4226-88cc-d2e9c1ba4f10)
 
