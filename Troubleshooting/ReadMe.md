@@ -14,27 +14,60 @@
  6. [Subheading 6](#sub-heading-6)
 
  ## Horizon 접속 불가
- - 문제 상황 : Host PC의 브라우저로 http://localhost:10000 입력 시 아래와 같은 화면 출력됨
+ - 문제 상황 : Host PC의 브라우저로 http://localhost:10000 접속 시 아래와 같은 화면 출력됨
    <img width="1319" height="232" alt="image" src="https://github.com/user-attachments/assets/ee7fe5b1-58c2-4839-a60c-642b8f5a9061" />
 - [관련 영상](https://youtu.be/tzLplSuLnq4?si=kN_VQNzjqWSO00HN&t=1577)
--  해결 시도 :
+-  해결 과정 :
     - Apache error log 확인(/var/log/apache2/openstack_dashboard-error.log)
-        - `ModuleNotFoundError: No module named 'django_pyscss'` 발견
-        - ➡️ Django 모듈 일부가 설치되지 않아 wsgi 로딩 실패로 간주
-    - Horizon 정상 동작을 위해 필요한 패키지 `django-pyscss` 가 `pyScss<1.3.0` 에 의존함을 확인
-        - `pyScss<1.3.0` 버전 설치 시도 ; `ImportError: cannot import name 'Feature' from 'setuptools'` 발견 
-        - ➡️ pyScss 1.2.1 내부에서 setuptools.Feature 라는 Class 사용, `setuptools` 5.7 ver 부터는 해당 Class 삭제로 인한 문제로 판단
-        - 
+        - `ModuleNotFoundError: No module named 'django_pyscss'` 발견 <br>
+          ➡️ Django 모듈 일부가 설치되지 않아 wsgi 로딩 실패로 간주
+    - Horizon (23.1/Antelope) 정상 동작을 위한 필요 패키지 설치
+        - Official Repository에서 `requirements.txt`를 다운받아 아래 코드 입력 
+        - ```bash
+          cd /var/www/horizon
+          curl -O https://opendev.org/openstack/horizon/raw/branch/unmaintained/2023.1/requirements.txt
+          pip3 install -r requirements.txt
+
+          
+          python3 manage.py collectstatic --noinput
+          python3 manage.py compress --force 
+          systemctl restart apache2
+
+          ```
+      - 문제 해결 😄 (정상 접속 및 로그인 가능 확인) 
+    
+<details>
+
+<summary>삽질 과정</summary>
+
+1. Apache error log 확인 후 django_pyscss 패키지 설치 시도
++ GPT 질문 시, `pip3 install "django-pyscss<2.0" "pyScss<1.3.0"` 버젼 설치 권고받음 
+2. `pip3 install "pyScss<1.3.0"` 입력 후 `ImportError: cannot import name 'Feature' from 'setuptools' ` 오류 발생
++ 설치 시 참조되는 setup.py 내부에서 setuptools.Feature 라는 Class 사용하는데, `setuptools` 5.7 ver 부터는 해당 Class 삭제된 확인
+3. setup.py 內 Feature 관련 코드 완전 삭제 후 아래 코드 입력 , 이후 다음 오류 발생 
+  ```bash
+  python3 setup.py install`
+  cd /var/www/horizon
+  sudo python3 manage.py collectstatic --noinput
+  sudo python3 manage.py compress
+
+  # 출력 생략
+  ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour
+  is the source of the following dependency conflicts.
+  horizon 0.0.0 requires django-pyscss>=2.0.2, but you have django-pyscss 1.0.6 which is incompatible.
+  horizon 0.0.0 requires pyScss>=1.4.0, but you have pyscss 1.2.1 which is incompatible.
+  ```
++ 현재 설치된 `pyScss` 및 `django-pyscss`가 Horizon의 요구사항에 맞지 않음(호환X) 확인
++ 근본적으로 해당 방법은 해결책이 아니였음 <br>
+  ➡️ Horizon (23.1/Antelope) 정상 동작을 위한 필요 패키지 설치 진행 
+
+</details>
+
+- 결론 및 분석: Horizon이 요구하는 Pakage가 제대로 갖춰지지 않아 발생한 문제 <br>
+  ➡️ 공식 repo의 requirements.txt 기반 패키지 설치로 해결
      
 ----------------------------------
-2-2. Django 호환 버젼으로 Downgrade `pip3 install "django>=3.2,<3.3"`
--> 공식 배포판 setup.py 내부에 `Feature` 관련 코드 존재로 ImportError 지속
---> setup.py 파일 수정,  `Feature` 관련 코드 삭제
--> 수정된 setup.py 파일로 pyScss 수동 설치 `python3 setup.py install` 
-- 결론 및 분석: Horizon이 사용하는 Django 기반의 정적 리소스 처리(특히 SCSS → CSS 변환)에 필요한 패키지들이 Python/Django 최신 버전과 호환되지 않아 생긴 문제 ➡️ 버전 맞춤 및 수동 조치로 해결
 
-4. 관련 Dependency 설치 및 setuptools  
-### 해결 방안 : setup.py 파일 신규 생성 
 
  ## Subheading 2
  Content of the subheading 2
