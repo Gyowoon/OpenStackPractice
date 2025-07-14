@@ -2,12 +2,12 @@
 ### 실습 환경 및 PC 설정 
 - 프로세서	12th Gen Intel(R) Core(TM) i5-12400   2.50 GHz
 - RAM	64.0GB(63.7GB 사용 가능)
-- 시스템 종류	64비트 운영 체제, x64 기반 프로세서
+- 시스템 종류	64비트 운영 체제, x64 기반 프로세서 / Windows 11 Pro 
 - VirtualBox version 7.1.10 r169112 (Qt6.5.3)
 
 ## Table of Contents
  1. [Horizon 접속 불가](#Horizon-접속-불가)
- 2. [Subheading 2](#subheading-2)
+ 2. [Port Forwarding 설정 불가](#Port-Forwarding-설정-불가)
  3. [Subheading 3](#sub-heading-3)
  4. [Subheading 4](#sub-heading-4)
  5. [Subheading 5](#sub-heading-5)
@@ -69,17 +69,30 @@
 ----------------------------------
 
 
- ## Port Forwarding 설정 불가 (VirtualBox) 
+ ## Port Forwarding 설정 불가
  - 문제 상황 : Host PC의 Putty에서 SSH를 통한 <HostIP:Port> 로 Compute/Controller 접속 시도 시 , "ERR_CONNECTION_REFUSED" 오류 발생 
+	<img width="273" height="152" alt="image" src="https://github.com/user-attachments/assets/f51d6f1e-3b8a-4a27-b505-7930284393d4" />
  - [관련 영상](https://youtu.be/PR00F3A_6vw?si=Kf_4Ya7URaIWDvXG)
+ - 해결 과정 : VirtualBox의 Port Forwarding 설정 중, Host IP 주소 부분을 "공란으로 설정" 후 재시도 <br>
+			  ➡️ 문제 없이 SSH 접속 성공 확인 😊
  - 기존 VirtualBox 설정 <img width="679" height="169" alt="image" src="https://github.com/user-attachments/assets/0b1ad27a-e10c-4cce-8f58-59512dbbf9f9" />
  - 변경 VirtualBox 설정 <img width="643" height="176" alt="image" src="https://github.com/user-attachments/assets/3e186c0b-0ff3-4ccd-b78a-48889271d3b1" />
 
- - 해결 과정 :
- 	- Host PC의 IP주소를 정확히 입력하고 있는지 확인 (cmd -> ipconfig /all)
-  	- VM의 IP주소 재확인 및 방화벽 동작여부 확인 (systemctl status [firewalld|ufw])
-   	- VM의 Port 차단 여부 확인 (ss -tnlp | grep :게스트 포트 번호)
-   	- 
+<details>
+
+<summary>삽질 과정</summary>
+- Host PC의 IP주소를 정확히 입력하고 있는지 확인 (cmd -> ipconfig /all)
+- Host PC에서 VM으로 curl 가능여부 확인 (cmd -> curl  http://localhost:게스트 포트 번호)
+- Host PC에서 VirtualBox NAT 설정 확인 (cmd -> VBoxManage showvminfo)
+- Host PC의 Windows 방화벽 설정 확인 (인바운드 규칙 -> VirtualBox NAT Engine 설정)
+- VM의 IP주소 재확인 및 방화벽 동작여부 확인 (systemctl status [firewalld|ufw])
+- VM의 Port 차단 여부 확인 (ss -tnlp | grep :게스트 포트 번호)
+- Host IP를 공란 혹은 loopback ip(127.0.0.1) 설정 후 접속 가능 확인 
+
+</details>
+
+ - 결론 및 분석: VirtualBox의 Port Forwarding 동작 구조 OR Host  PC의 IP주소 범위(195.x.x.x)로 인한 문제로 판단 <br>
+   ➡️ Host IP 주소를 *공란* 또는 *127.0.0.1* 로 두어 해결 ~(너무 오래 헤맸던 이슈..)~
 
  ## Sub heading 3
  Content of the subheading 3
