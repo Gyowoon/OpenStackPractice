@@ -69,8 +69,18 @@
 ----------------------------------
 
 
- ## Subheading 2
- Content of the subheading 2
+ ## Port Forwarding 설정 불가 (VirtualBox) 
+ - 문제 상황 : Host PC의 Putty에서 SSH를 통한 <HostIP:Port> 로 Compute/Controller 접속 시도 시 , "ERR_CONNECTION_REFUSED" 오류 발생 
+ - [관련 영상](https://youtu.be/PR00F3A_6vw?si=Kf_4Ya7URaIWDvXG)
+ - 기존 VirtualBox 설정 <img width="679" height="169" alt="image" src="https://github.com/user-attachments/assets/0b1ad27a-e10c-4cce-8f58-59512dbbf9f9" />
+ - 변경 VirtualBox 설정 <img width="643" height="176" alt="image" src="https://github.com/user-attachments/assets/3e186c0b-0ff3-4ccd-b78a-48889271d3b1" />
+
+ - 해결 과정 :
+ 	- Host PC의 IP주소를 정확히 입력하고 있는지 확인 (cmd -> ipconfig /all)
+  	- VM의 IP주소 재확인 및 방화벽 동작여부 확인 (systemctl status [firewalld|ufw])
+   	- VM의 Port 차단 여부 확인 (ss -tnlp | grep :게스트 포트 번호)
+   	- 
+
  ## Sub heading 3
  Content of the subheading 3
  ## Subheading 4
